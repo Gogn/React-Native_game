@@ -1,11 +1,9 @@
-import {
-  SharedValue
-} from 'react-native-reanimated';
+import {SharedValue} from 'react-native-reanimated';
 
 export enum ShapeType {
-  Circle = "Circle",
-  Paddle = "Paddle",
-  Rect = "Rect",
+  Circle = 'Circle',
+  Paddle = 'Paddle',
+  Rect = 'Rect',
 }
 
 export interface ShapeInterface {
@@ -49,4 +47,5 @@ export interface RectInterface extends ShapeInterface {
   width: number;
   height: number;
   canCollide: boolean;
+  color: SharedValue<string>;
 }

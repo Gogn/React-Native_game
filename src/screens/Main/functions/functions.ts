@@ -1,22 +1,21 @@
 import {
   CircleInterface,
   Collision,
+  RectInterface,
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
-import {
-  MAX_SPEED,
-  RADIUS,
-} from '../constants.ts';
+import {height, MAX_SPEED, RADIUS, RECT_HEIGHT, width} from '../constants.ts';
 import {
   checkCollision,
   resolveCollisionWithBounce,
   resolveWallCollision,
 } from './collisions.ts';
+import {FrameInfo, runOnJS} from 'react-native-reanimated';
 
 const move = (object: ShapeInterface, dt: number) => {
   'worklet';
-  if (object.type === 'Circle') {
+  if (object.type === ShapeType.Circle) {
     object.vx += object.ax * dt;
     object.vy += object.ay * dt;
     if (object.vx > MAX_SPEED) {
@@ -37,15 +36,15 @@ const move = (object: ShapeInterface, dt: number) => {
 };
 
 export const createBouncingExample = (circleObject: CircleInterface) => {
-  "worklet";
+  'worklet';
 
   // circleObject.x.value = 100;
   // circleObject.y.value = 450;
   circleObject.r = RADIUS;
   circleObject.ax = 0.5;
   circleObject.ay = 1;
-  circleObject.vx = MAX_SPEED-10;
-  circleObject.vy = MAX_SPEED-10;
+  circleObject.vx = MAX_SPEED - 10;
+  circleObject.vy = MAX_SPEED - 10;
   circleObject.m = RADIUS * 10;
 };
 
@@ -54,7 +53,7 @@ export const animate = (
   timeSincePreviousFrame: number,
   // brickCount: SharedValue<number>
 ) => {
-  "worklet";
+  'worklet';
 
   for (const o of objects) {
     move(o, (0.15 / 16) * timeSincePreviousFrame);
@@ -73,7 +72,7 @@ export const animate = (
   for (const [i, o1] of objects.entries()) {
     for (const [j, o2] of objects.entries()) {
       if (i < j) {
-        const { collided, collisionInfo } = checkCollision(o1, o2);
+        const {collided, collisionInfo} = checkCollision(o1, o2);
         if (collided && collisionInfo) {
           collisions.push(collisionInfo);
         }
@@ -86,5 +85,52 @@ export const animate = (
     //   brickCount.value++;
     // }
     resolveCollisionWithBounce(col);
+  }
+};
+
+export const animateWalls = (walls: RectInterface[]) => {
+  'worklet';
+
+  const gen = () => {
+    const randomHex = () =>
+      Math.floor(Math.random() * 256)
+        .toString(16)
+        .padStart(2, '0');
+    return `#${randomHex()}${randomHex()}${randomHex()}`;
+  };
+
+  for (const wall of walls) {
+    if (wall.y.value > height) {
+      const newColor = gen();
+      wall.y.value = Math.random() * (-height * 0.3);
+      wall.x.value = Math.random() * width;
+      wall.color.value = newColor;
+    }
+  }
+};
+
+export const calculateFps = (
+  frameInfo: FrameInfo,
+  frameCountRef: React.MutableRefObject<number>,
+  lastFrameTimeRef: React.MutableRefObject<number>,
+  updateFps: (fps: number) => void,
+) => {
+  'worklet';
+
+  const currentTime = frameInfo.timeSinceFirstFrame;
+  frameCountRef.current++;
+
+  if (lastFrameTimeRef.current === 0) {
+    lastFrameTimeRef.current = currentTime;
+    return;
+  }
+
+  const delta = currentTime - lastFrameTimeRef.current;
+  if (delta >= 1000) {
+    const calculatedFps = Math.round((frameCountRef.current * 1000) / delta);
+    frameCountRef.current = 0;
+    lastFrameTimeRef.current = currentTime;
+
+    runOnJS(updateFps)(calculatedFps);
   }
 };
