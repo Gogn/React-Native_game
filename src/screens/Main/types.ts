@@ -46,7 +46,7 @@ export interface Collision {
 export interface RectInterface extends ShapeInterface {
   type: ShapeType.Rect;
   isDraggable: false;
-  w: number;
-  h: number;
+  width: number;
+  height: number;
   canCollide: boolean;
 }
