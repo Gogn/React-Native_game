@@ -15,7 +15,6 @@ import {
 } from './constants.ts';
 import {
   animate,
-  animateWalls,
   calculateFps,
   createBouncingExample,
 } from './functions/functions.ts';
@@ -54,11 +53,11 @@ export const Main = () => {
         id,
         ax: 0,
         ay: 0,
-        canCollide: true,
+        canCollide: false,
         isDraggable: false,
         type: ShapeType.Rect,
         vy: 0,
-        vx: 0,
+        vx: WALLS_SPEED,
         m: 0,
       };
     });
@@ -85,17 +84,14 @@ export const Main = () => {
       return;
     }
 
-    walls.forEach(wall => {
-      wall.y.value += WALLS_SPEED;
-    });
-
     if (!showFps) {
       calculateFps(frameInfo, frameCountRef, lastFrameTimeRef, updateFps);
     }
 
-    animate([circleObj, draggableCircleObj], frameInfo.timeSincePreviousFrame);
-
-    animateWalls(walls);
+    animate(
+      [circleObj, draggableCircleObj, ...walls],
+      frameInfo.timeSincePreviousFrame,
+    );
   });
 
   const gesture = Gesture.Pan()

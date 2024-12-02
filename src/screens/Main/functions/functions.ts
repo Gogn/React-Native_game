@@ -5,7 +5,7 @@ import {
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
-import {height, MAX_SPEED, RADIUS, RECT_HEIGHT, width} from '../constants.ts';
+import {height, MAX_SPEED, RADIUS, width} from '../constants.ts';
 import {
   checkCollision,
   resolveCollisionWithBounce,
@@ -33,6 +33,9 @@ const move = (object: ShapeInterface, dt: number) => {
     object.x.value += object.vx * dt;
     object.y.value += object.vy * dt;
   }
+  if (object.type === ShapeType.Rect) {
+    object.y.value += object.vx * dt;
+  }
 };
 
 export const createBouncingExample = (circleObject: CircleInterface) => {
@@ -56,12 +59,36 @@ export const animate = (
   'worklet';
 
   for (const o of objects) {
-    move(o, (0.15 / 16) * timeSincePreviousFrame);
+    const gameSpeed = 0.15;
+    const normalFPSmilliseconds = 16;
+    const getFpsUpdateInterval = (timeSincePreviousFrame: number) => {
+      return (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
+    };
+    move(o, getFpsUpdateInterval(timeSincePreviousFrame));
   }
 
+  const gen = () => {
+    const randomHex = () =>
+      Math.floor(Math.random() * 256)
+        .toString(16)
+        .padStart(2, '0');
+    return `#${randomHex()}${randomHex()}${randomHex()}`;
+  };
+
   for (const o of objects) {
-    if (o.type !== ShapeType.Circle) continue;
-    resolveWallCollision(o);
+    if (o.type === ShapeType.Circle) {
+      resolveWallCollision(o);
+    }
+    if (o.type === 'Rect') {
+      const rectObject = o as RectInterface;
+      const rectsUnderTheScreen = rectObject.y.value > height;
+      if (rectsUnderTheScreen) {
+        const newColor = gen();
+        rectObject.y.value = Math.random() * (-height * 0.3);
+        rectObject.x.value = Math.random() * width;
+        rectObject.color.value = newColor;
+      }
+    }
     // if (isGameLost) {
     //   brickCount.value = -1;
     // }
@@ -85,27 +112,6 @@ export const animate = (
     //   brickCount.value++;
     // }
     resolveCollisionWithBounce(col);
-  }
-};
-
-export const animateWalls = (walls: RectInterface[]) => {
-  'worklet';
-
-  const gen = () => {
-    const randomHex = () =>
-      Math.floor(Math.random() * 256)
-        .toString(16)
-        .padStart(2, '0');
-    return `#${randomHex()}${randomHex()}${randomHex()}`;
-  };
-
-  for (const wall of walls) {
-    if (wall.y.value > height) {
-      const newColor = gen();
-      wall.y.value = Math.random() * (-height * 0.3);
-      wall.x.value = Math.random() * width;
-      wall.color.value = newColor;
-    }
   }
 };
 

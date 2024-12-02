@@ -21,4 +21,4 @@ export const width = windowWidth;
 
 export const RECT_WIDTH = 50;
 export const RECT_HEIGHT = 100;
-export const WALLS_SPEED = 5;
+export const WALLS_SPEED = 20;
