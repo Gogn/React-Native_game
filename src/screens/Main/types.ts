@@ -4,6 +4,7 @@ export enum ShapeType {
   Circle = 'Circle',
   Paddle = 'Paddle',
   Rect = 'Rect',
+  Line = 'Line',
 }
 
 export interface ShapeInterface {
@@ -13,8 +14,8 @@ export interface ShapeInterface {
   m: number; // Mass of the shape
   ax: number; // Acceleration of x
   ay: number; // Acceleration of y
-  vx: number; // Velocity of x
-  vy: number; // Velocity of y
+  vx: SharedValue<number>; // Velocity of x
+  vy: SharedValue<number>; // Velocity of y
   type: ShapeType; // Type
   isDraggable: boolean;
 }
@@ -48,4 +49,11 @@ export interface RectInterface extends ShapeInterface {
   height: number;
   canCollide: boolean;
   color: SharedValue<string>;
+}
+
+export interface LineInterface {
+  type: ShapeType.Line;
+  color: string;
+  x: SharedValue<number>;
+  y: SharedValue<number>;
 }

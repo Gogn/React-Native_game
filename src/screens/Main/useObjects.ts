@@ -1,6 +1,7 @@
 import {
   CircleInterface,
   DraggableCircleInterface,
+  LineInterface,
   RectInterface,
   ShapeType,
 } from './types.ts';
@@ -17,8 +18,8 @@ export const useObjects = () => {
     m: 0,
     ax: 0,
     ay: 0,
-    vx: 0,
-    vy: 0,
+    vx: useSharedValue(0),
+    vy: useSharedValue(0),
     canCollide: true,
     isDraggable: false,
   };
@@ -26,14 +27,14 @@ export const useObjects = () => {
   const draggableCircleObj: DraggableCircleInterface = {
     type: ShapeType.Circle,
     id: 0,
-    x: useSharedValue(200),
+    x: useSharedValue(50),
     y: useSharedValue(500),
     r: RADIUS * 1.5,
     m: 0,
     ax: 0,
     ay: 0,
-    vx: 0,
-    vy: 0,
+    vx: useSharedValue(0),
+    vy: useSharedValue(0),
     canCollide: true,
     isDraggable: true,
   };
@@ -48,15 +49,22 @@ export const useObjects = () => {
     m: 0,
     ax: 0,
     ay: 0,
-    vx: 0,
-    vy: 0,
+    vx: useSharedValue(0),
+    vy: useSharedValue(0),
     canCollide: true,
     isDraggable: false,
+  };
+
+  const lineObj: LineInterface = {
+    color: 'lightblue',
+    x: useSharedValue(0),
+    y: useSharedValue(0),
   };
 
   return {
     circleObj,
     draggableCircleObj,
     rectObj,
+    lineObj,
   };
 };

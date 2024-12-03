@@ -22,25 +22,28 @@ import {FrameInfo, runOnJS} from 'react-native-reanimated';
 const move = (object: ShapeInterface, dt: number) => {
   'worklet';
   if (object.type === ShapeType.Circle) {
-    object.vx += object.ax * dt;
-    object.vy += object.ay * dt;
-    if (object.vx > MAX_SPEED) {
-      object.vx = MAX_SPEED;
-    }
-    if (object.vx < -MAX_SPEED) {
-      object.vx = -MAX_SPEED;
-    }
-    if (object.vy > MAX_SPEED) {
-      object.vy = MAX_SPEED;
-    }
-    if (object.vy < -MAX_SPEED) {
-      object.vy = -MAX_SPEED;
-    }
-    object.x.value += object.vx * dt;
-    object.y.value += object.vy * dt;
+    // object.vx += object.ax * dt;
+    // object.vy += object.ay * dt;
+    // if (object.vx > MAX_SPEED) {
+    //   object.vx = MAX_SPEED;
+    // }
+    // if (object.vx < -MAX_SPEED) {
+    //   object.vx = -MAX_SPEED;
+    // }
+    // if (object.vy > MAX_SPEED) {
+    //   object.vy = MAX_SPEED;
+    // }
+    // if (object.vy < -MAX_SPEED) {
+    //   object.vy = -MAX_SPEED;
+    // }
+    object.x.value += object.vx.value * dt;
+    object.y.value += object.vy.value * dt;
+
+    // object.x.value += dt;
+    // object.y.value += dt;
   }
   if (object.type === ShapeType.Rect) {
-    object.y.value += object.vx * dt;
+    object.y.value += object.vx.value * dt;
   }
 };
 

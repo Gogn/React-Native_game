@@ -4,8 +4,8 @@ import {
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
-import {height, width} from '../constants.ts';
 import {circleCircle} from './shapeCollisions/circleCircle.ts';
+import {windowHeight, windowWidth} from '../constants.ts';
 
 export const resolveCollisionWithBounce = (info: Collision) => {
   'worklet';
@@ -19,7 +19,7 @@ export const resolveCollisionWithBounce = (info: Collision) => {
 
   circleInfo.vx = circleInfo.vx;
   circleInfo.ax = circleInfo.ax;
-  circleInfo.vy = -circleInfo.vy;
+  circleInfo.vy.value = -circleInfo.vy;
   circleInfo.ay = -circleInfo.ay;
 };
 
@@ -38,16 +38,16 @@ export const resolveWallCollision = (object: ShapeInterface) => {
   if (object.type === ShapeType.Circle) {
     const circleObject = object as CircleInterface;
     // Collision with the right wall
-    if (circleObject.x.value + circleObject.r > width) {
-      circleObject.x.value = width - circleObject.r;
-      circleObject.vx = -circleObject.vx;
+    if (circleObject.x.value + circleObject.r > windowWidth) {
+      circleObject.x.value = windowWidth - circleObject.r;
+      circleObject.vx.value = -circleObject.vx.value;
       circleObject.ax = -circleObject.ax;
     }
 
     // Collision with the bottom wall
-    else if (circleObject.y.value + circleObject.r > height) {
-      circleObject.y.value = height - circleObject.r;
-      circleObject.vy = -circleObject.vy;
+    else if (circleObject.y.value + circleObject.r > windowHeight) {
+      circleObject.y.value = windowHeight - circleObject.r;
+      circleObject.vy.value = -circleObject.vy.value;
       circleObject.ay = -circleObject.ay;
       return true;
     }
@@ -55,14 +55,14 @@ export const resolveWallCollision = (object: ShapeInterface) => {
     // Collision with the left wall
     else if (circleObject.x.value - circleObject.r < 0) {
       circleObject.x.value = circleObject.r;
-      circleObject.vx = -circleObject.vx;
+      circleObject.vx.value = -circleObject.vx.value;
       circleObject.ax = -circleObject.ax;
     }
 
     // Detect collision with the top wall
     else if (circleObject.y.value - circleObject.r < 0) {
       circleObject.y.value = circleObject.r;
-      circleObject.vy = -circleObject.vy;
+      circleObject.vy.value = -circleObject.vy.value;
       circleObject.ay = -circleObject.ay;
     }
 
