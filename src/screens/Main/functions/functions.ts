@@ -1,6 +1,8 @@
 import {
   CircleInterface,
   Collision,
+  DraggableCircleInterface,
+  LineInterface,
   RectInterface,
   ShapeInterface,
   ShapeType,
@@ -17,9 +19,14 @@ import {
   resolveCollisionWithBounce,
   resolveWallCollision,
 } from './collisions.ts';
-import {FrameInfo, runOnJS} from 'react-native-reanimated';
+import {FrameInfo, runOnJS, SharedValue} from 'react-native-reanimated';
+import {SkPoint, vec} from '@shopify/react-native-skia';
 
-const move = (object: ShapeInterface, dt: number) => {
+const move = (
+  object: ShapeInterface,
+  dt: number,
+  isFingerOnTheScreen: boolean,
+) => {
   'worklet';
   if (object.type === ShapeType.Circle) {
     // object.vx += object.ax * dt;
@@ -63,6 +70,7 @@ export const createBouncingExample = (circleObject: CircleInterface) => {
 export const animate = (
   objects: ShapeInterface[],
   timeSincePreviousFrame: number,
+  isFingerOnTheScreen: boolean,
   // brickCount: SharedValue<number>
 ) => {
   'worklet';
@@ -73,7 +81,7 @@ export const animate = (
     const getFpsUpdateInterval = (timeSincePreviousFrame: number) => {
       return (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
     };
-    move(o, getFpsUpdateInterval(timeSincePreviousFrame));
+    move(o, getFpsUpdateInterval(timeSincePreviousFrame), isFingerOnTheScreen);
   }
 
   const gen = () => {
@@ -124,6 +132,31 @@ export const animate = (
     // }
     resolveCollisionWithBounce(col);
   }
+};
+
+export const animateLineStartPoint = (
+  objects: {
+    draggableCircleObj: DraggableCircleInterface;
+    lineObj: LineInterface;
+  },
+  // timeSincePreviousFrame: number,
+  isFingerOnTheScreen: boolean,
+  lineVecP2: {dx: number; dy: number},
+) => {
+  'worklet';
+  if (!isFingerOnTheScreen) return;
+  objects.lineObj.p1.value = vec(
+    objects.draggableCircleObj.x.value,
+    objects.draggableCircleObj.y.value,
+  );
+  // const nnx = objects.draggableCircleObj.x.value + lineVecP2.nx;
+  // const nny = objects.draggableCircleObj.y.value + lineVecP2.ny;
+  const nx = objects.draggableCircleObj.x.value - lineVecP2.dx;
+  const ny = objects.draggableCircleObj.y.value - lineVecP2.dy;
+  // lineObj.p2.value = vec(nx, ny);
+  // const nnx = lineVecP2.nx;
+  // const nny = lineVecP2.ny;
+  objects.lineObj.p2.value = vec(nx, ny);
 };
 
 export const calculateFps = (

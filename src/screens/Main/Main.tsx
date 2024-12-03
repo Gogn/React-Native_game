@@ -12,6 +12,7 @@ import {
 } from './constants.ts';
 import {
   animate,
+  animateLineStartPoint,
   calculateFps,
   createBouncingExample,
 } from './functions/functions.ts';
@@ -39,7 +40,8 @@ export const Main = () => {
   const frameCountRef = useRef(0);
   const calcWallHeight = RECT_HEIGHT * (Math.random() * 5);
   let startCoordinates = useSharedValue({x: 0, y: 0});
-  const vect = useSharedValue(vec(0, 0));
+  const lineVecP2 = useSharedValue({dx: 0, dy: 0});
+  const isFingerOnTheScreen = useSharedValue(false);
 
   const wallsHeights = Array(WALLS_AMOUNT)
     .fill(0)
@@ -111,36 +113,58 @@ export const Main = () => {
     }
 
     animate(
-      // [circleObj, draggableCircleObj, ...walls],
-      [circleObj, ...walls],
+      [circleObj, draggableCircleObj, ...walls],
+      // [circleObj, ...walls],
       frameInfo.timeSincePreviousFrame,
+      isFingerOnTheScreen,
+    );
+    animateLineStartPoint(
+      {draggableCircleObj, lineObj},
+      isFingerOnTheScreen.value,
+      lineVecP2.value,
     );
   });
-
-  const gesture = Gesture.Pan()
+  const speedRed = -0.2;
+  const panGesture = Gesture.Pan()
     .onBegin(({x, y}) => {
+      console.log('onBegin');
       // if (brickCount.value === TOTAL_BRICKS || brickCount.value === -1) {
       //   resetGame();
       // }
       startCoordinates.value = {x, y};
+      isFingerOnTheScreen.value = true;
     })
     .onEnd(({x, y}) => {
+      console.log('onEnd');
       // console.log('startCoordinates', startCoordinates.value);
-      const difX = startCoordinates.value.x - x;
-      const difY = startCoordinates.value.y - y;
-      draggableCircleObj.vx.value = draggableCircleObj.vx.value + difX;
-      draggableCircleObj.vy.value = draggableCircleObj.vy.value + difY;
+      const difX = x - startCoordinates.value.x;
+      const difY = y - startCoordinates.value.y;
+      draggableCircleObj.vx.value =
+        draggableCircleObj.vx.value + difX * speedRed;
+      draggableCircleObj.vy.value =
+        draggableCircleObj.vy.value + difY * speedRed;
       // console.log('difX', difX);
       // console.log('difY', difY);
       // console.log('draggableCircleObj', draggableCircleObj);
     })
+    .onTouchesUp(() => {
+      console.log('onTouchesUp');
+      isFingerOnTheScreen.value = false;
+    })
     .onChange(({x, y}) => {
       const dx = x - startCoordinates.value.x;
       const dy = y - startCoordinates.value.y;
-      const nx = draggableCircleObj.x.value - dx;
-      const ny = draggableCircleObj.y.value - dy;
-      vect.value = vec(nx, ny);
+      // const nx = draggableCircleObj.x.value - dx;
+      // const ny = draggableCircleObj.y.value - dy;
+      // lineObj.p2.value = vec(nx, ny);
+      lineVecP2.value = {dx, dy};
     });
+  // .onUpdate(() => {
+  //   lineVecP1.value = vec(
+  //     draggableCircleObj.x.value,
+  //     draggableCircleObj.y.value,
+  //   );
+  // });
   // .onChange(({x, y}) => {
   //   draggableCircleObj.x.value = x;
   //   draggableCircleObj.y.value = y;
@@ -160,7 +184,7 @@ export const Main = () => {
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <GestureDetector gesture={gesture}>
+      <GestureDetector gesture={panGesture}>
         <View>
           <Text style={{position: 'absolute', top: 50, left: 50}}>{fps}</Text>
           <Canvas style={{width: windowWidth, height: windowHeight}}>
@@ -178,11 +202,12 @@ export const Main = () => {
               color={'black'}
             />
             <Line
-              p1={vec(draggableCircleObj.x.value, draggableCircleObj.y.value)}
-              p2={vect}
-              color="lightblue"
+              p1={lineObj.p1}
+              p2={lineObj.p2}
+              color={'lightblue'}
               style="stroke"
               strokeWidth={4}
+              opacity={isFingerOnTheScreen ? 1 : 0}
             />
           </Canvas>
         </View>

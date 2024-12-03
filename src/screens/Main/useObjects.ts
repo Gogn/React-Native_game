@@ -7,6 +7,7 @@ import {
 } from './types.ts';
 import {useSharedValue} from 'react-native-reanimated';
 import {RADIUS} from './constants.ts';
+import {vec} from '@shopify/react-native-skia';
 
 export const useObjects = () => {
   const circleObj: CircleInterface = {
@@ -27,7 +28,7 @@ export const useObjects = () => {
   const draggableCircleObj: DraggableCircleInterface = {
     type: ShapeType.Circle,
     id: 0,
-    x: useSharedValue(50),
+    x: useSharedValue(100),
     y: useSharedValue(500),
     r: RADIUS * 1.5,
     m: 0,
@@ -57,8 +58,8 @@ export const useObjects = () => {
 
   const lineObj: LineInterface = {
     color: 'lightblue',
-    x: useSharedValue(0),
-    y: useSharedValue(0),
+    p1: useSharedValue(vec(0, 0)),
+    p2: useSharedValue(vec(0, 0)),
   };
 
   return {

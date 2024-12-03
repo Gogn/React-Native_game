@@ -1,4 +1,5 @@
 import {SharedValue} from 'react-native-reanimated';
+import {SkPoint} from '@shopify/react-native-skia';
 
 export enum ShapeType {
   Circle = 'Circle',
@@ -54,6 +55,6 @@ export interface RectInterface extends ShapeInterface {
 export interface LineInterface {
   type: ShapeType.Line;
   color: string;
-  x: SharedValue<number>;
-  y: SharedValue<number>;
+  p1: SharedValue<SkPoint>;
+  p2: SharedValue<SkPoint>;
 }
