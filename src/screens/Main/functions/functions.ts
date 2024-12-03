@@ -5,7 +5,13 @@ import {
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
-import {height, MAX_SPEED, RADIUS, width} from '../constants.ts';
+import {
+  MAX_SPEED,
+  RADIUS,
+  RECT_HEIGHT,
+  windowHeight,
+  windowWidth,
+} from '../constants.ts';
 import {
   checkCollision,
   resolveCollisionWithBounce,
@@ -81,11 +87,13 @@ export const animate = (
     }
     if (o.type === 'Rect') {
       const rectObject = o as RectInterface;
-      const rectsUnderTheScreen = rectObject.y.value > height;
+      const rectsUnderTheScreen = rectObject.y.value > windowHeight;
       if (rectsUnderTheScreen) {
         const newColor = gen();
-        rectObject.y.value = Math.random() * (-height * 0.3);
-        rectObject.x.value = Math.random() * width;
+        const newHeight = RECT_HEIGHT * (Math.random() * 5);
+        rectObject.y.value = -windowHeight - Math.random() * 10;
+        rectObject.x.value = Math.random() * windowWidth;
+        rectObject.height = newHeight;
         rectObject.color.value = newColor;
       }
     }

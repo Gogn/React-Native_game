@@ -2,7 +2,8 @@ export const RADIUS = 50;
 
 import {Dimensions} from 'react-native';
 
-const {height: windowHeight, width: windowWidth} = Dimensions.get('window');
+export const {height: windowHeight, width: windowWidth} =
+  Dimensions.get('window');
 
 export const BALL_COLOR = '#77FF23';
 
@@ -16,9 +17,7 @@ export const BRICK_MIDDLE = windowWidth / 2 - BRICK_WIDTH / 2;
 export const PADDLE_MIDDLE = windowWidth / 2 - PADDLE_WIDTH / 2;
 export const MAX_SPEED = 50;
 
-export const height = windowHeight;
-export const width = windowWidth;
-
-export const RECT_WIDTH = 50;
-export const RECT_HEIGHT = 100;
-export const WALLS_SPEED = 20;
+export const RECT_WIDTH = 25;
+export const RECT_HEIGHT = 200;
+export const WALLS_AMOUNT = 10;
+export const WALLS_SPEED = 10;
