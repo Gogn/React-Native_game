@@ -38,8 +38,8 @@ export const useObjects = () => {
     vy: useSharedValue(0),
     canCollide: true,
     isDraggable: true,
-    // color: useSharedValue('black'),
     color: useSharedValue('black'),
+    lastTimeCollision: new Date().getTime(),
   };
 
   const rectObj: RectInterface = {

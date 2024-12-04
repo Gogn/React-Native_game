@@ -7,19 +7,23 @@ import {
   ShapeType,
 } from '../types.ts';
 import {circleCircle} from './shapeCollisions/circleCircle.ts';
-import {windowHeight, windowWidth} from '../constants.ts';
+import {WALLS_SPEED, windowHeight, windowWidth} from '../constants.ts';
 import {circleRect} from './shapeCollisions/circleRect.ts';
 
 export const resolveCollisionWithWall = (info: Collision) => {
   'worklet';
-  const circleObj = info.o1 as PlayerCircleInterface;
+  const player = info.o1 as PlayerCircleInterface;
+  const time = new Date().getTime();
 
-  if (circleObj.vx.value !== 0 && circleObj.vy.value !== 0) {
-    circleObj.vx.value = 0;
-    circleObj.vy.value = 0;
-    circleObj.ax = 0;
-    circleObj.ay = 0;
-    circleObj.color.value = 'red';
+  if (time - player.lastTimeCollision > 100) {
+    player.vx.value = 0;
+    player.vy.value = WALLS_SPEED;
+    player.ax = 0;
+    player.ay = 0;
+    player.color.value = 'red';
+    player.lastTimeCollision = time;
+  } else {
+    player.color.value = 'black';
   }
 };
 

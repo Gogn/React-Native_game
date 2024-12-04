@@ -34,6 +34,7 @@ export interface PlayerCircleInterface extends ShapeInterface {
   r: number;
   canCollide: boolean;
   color: SharedValue<string>;
+  lastTimeCollision: number;
 }
 
 export interface Collision {

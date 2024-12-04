@@ -106,8 +106,8 @@ export const animateWallCollisions = (
     if (collided && collisionInfo) {
       collisions.push(collisionInfo);
     }
-    if (draggableCircleObj.color.value !== 'black')
-      draggableCircleObj.color.value = 'black';
+    // if (draggableCircleObj.color.value !== 'black')
+    //   draggableCircleObj.color.value = 'black';
   }
   for (const col of collisions) {
     resolveCollisionWithWall(col);
