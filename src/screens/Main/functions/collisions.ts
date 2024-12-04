@@ -1,7 +1,7 @@
 import {
   CircleInterface,
   Collision,
-  DraggableCircleInterface,
+  PlayerCircleInterface,
   RectInterface,
   ShapeInterface,
   ShapeType,
@@ -12,28 +12,20 @@ import {circleRect} from './shapeCollisions/circleRect.ts';
 
 export const resolveCollisionWithWall = (info: Collision) => {
   'worklet';
-  const circleObj = info.o1 as DraggableCircleInterface;
+  const circleObj = info.o1 as PlayerCircleInterface;
 
-  // circleInfo.y.value = circleInfo.y.value - circleInfo.r;
-
-  circleObj.vx.value = 0;
-  circleObj.vy.value = 0;
-  circleObj.ax = 0;
-  circleObj.ay = 0;
-  circleObj.color.value = 'red';
+  if (circleObj.vx.value !== 0 && circleObj.vy.value !== 0) {
+    circleObj.vx.value = 0;
+    circleObj.vy.value = 0;
+    circleObj.ax = 0;
+    circleObj.ay = 0;
+    circleObj.color.value = 'red';
+  }
 };
 
 // Source: https://martinheinz.dev/blog/15
 export const resolveWallCollision = (object: ShapeInterface) => {
   'worklet';
-
-  // Reset Circle state
-  // circleObject.x.value = 100;
-  // circleObject.y.value = 150;
-  // circleObject.ax = 0.5;
-  // circleObject.ay = 1;
-  // circleObject.vx = 0;
-  // circleObject.vy = 0;
 
   if (object.type === ShapeType.Circle) {
     const circleObject = object as CircleInterface;
@@ -74,17 +66,21 @@ export const checkCollision = (o1: ShapeInterface, o2: ShapeInterface) => {
   'worklet';
   // Circle-Circle
   if (o1.type === ShapeType.Circle && o2.type === ShapeType.Circle) {
-    return checkCollisionCircleCircle(o1, o2);
+    const circle1 = o1 as CircleInterface;
+    const circle2 = o2 as CircleInterface;
+    return checkCollisionCircleCircle(circle1, circle2);
   }
 
   // Circle-Rect
   if (o1.type === ShapeType.Circle && o2.type === ShapeType.Rect) {
-    return checkCollisionCircleRect(o1, o2);
+    const circle1 = o1 as CircleInterface;
+    const Rect1 = o2 as RectInterface;
+    return checkCollisionCircleRect(circle1, Rect1);
   }
 };
 
 export const checkCollisionCircleRect = (
-  circleObj: DraggableCircleInterface,
+  circleObj: CircleInterface | PlayerCircleInterface,
   rectObj: RectInterface,
 ) => {
   'worklet';
@@ -110,9 +106,6 @@ export const checkCollisionCircleRect = (
   );
 
   if (isCollision) {
-    // console.log('isCollision', new Date().getUTCMilliseconds());
-    console.log('rectObj', JSON.stringify(rectObj, null, 2));
-    // console.log('circleObj', circleObj);
     return {
       collisionInfo: {o1: circleObj, o2: rectObj, dx, dy, d},
       collided: true,
@@ -145,10 +138,6 @@ export const checkCollisionCircleCircle = (
   );
 
   if (isCollision) {
-    // if (o2.type === "Brick") {
-    //   const brick = o2 as BrickInterface;
-    //   brick.canCollide.value = false;
-    // }
     const dx = circle1.x.value - circle2.x.value;
     const dy = circle1.y.value - circle2.y.value;
     const d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));

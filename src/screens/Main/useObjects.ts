@@ -1,6 +1,6 @@
 import {
   CircleInterface,
-  DraggableCircleInterface,
+  PlayerCircleInterface,
   LineInterface,
   RectInterface,
   ShapeType,
@@ -25,7 +25,7 @@ export const useObjects = () => {
     isDraggable: false,
   };
 
-  const draggableCircleObj: DraggableCircleInterface = {
+  const PlayerObj: PlayerCircleInterface = {
     type: ShapeType.Circle,
     id: 0,
     x: useSharedValue(100),
@@ -66,7 +66,7 @@ export const useObjects = () => {
 
   return {
     circleObj,
-    draggableCircleObj,
+    PlayerObj: PlayerObj,
     rectObj,
     lineObj,
   };

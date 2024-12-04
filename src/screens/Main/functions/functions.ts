@@ -1,21 +1,13 @@
 import {
-  CircleInterface,
   Collision,
-  DraggableCircleInterface,
+  PlayerCircleInterface,
   LineInterface,
   RectInterface,
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
+import {RECT_HEIGHT, windowHeight, windowWidth} from '../constants.ts';
 import {
-  MAX_SPEED,
-  RADIUS,
-  RECT_HEIGHT,
-  windowHeight,
-  windowWidth,
-} from '../constants.ts';
-import {
-  checkCollision,
   checkCollisionCircleRect,
   resolveCollisionWithWall,
   resolveWallCollision,
@@ -42,42 +34,34 @@ const move = (object: ShapeInterface, dt: number) => {
     // }
     object.x.value += object.vx.value * dt;
     object.y.value += object.vy.value * dt;
-
-    // object.x.value += dt;
-    // object.y.value += dt;
   }
   if (object.type === ShapeType.Rect) {
     object.y.value += object.vx.value * dt;
   }
 };
 
-export const createBouncingExample = (circleObject: CircleInterface) => {
-  'worklet';
-
-  // circleObject.x.value = 100;
-  // circleObject.y.value = 450;
-  circleObject.r = RADIUS;
-  circleObject.ax = 0.5;
-  circleObject.ay = 1;
-  circleObject.vx.value = MAX_SPEED - 10;
-  circleObject.vy.value = MAX_SPEED - 10;
-  circleObject.m = RADIUS * 10;
-};
+// export const createBouncingExample = (circleObject: CircleInterface) => {
+//   'worklet';
+//   circleObject.r = RADIUS;
+//   circleObject.ax = 0.5;
+//   circleObject.ay = 1;
+//   circleObject.vx.value = MAX_SPEED - 10;
+//   circleObject.vy.value = MAX_SPEED - 10;
+//   circleObject.m = RADIUS * 10;
+// };
 
 export const animate = (
   objects: ShapeInterface[],
   timeSincePreviousFrame: number,
-  // brickCount: SharedValue<number>
 ) => {
   'worklet';
 
   for (const o of objects) {
     const gameSpeed = 0.15;
     const normalFPSmilliseconds = 16;
-    const getFpsUpdateInterval = (timeSincePreviousFrame: number) => {
-      return (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
-    };
-    move(o, getFpsUpdateInterval(timeSincePreviousFrame));
+    const fpsUpdateInterval =
+      (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
+    move(o, fpsUpdateInterval);
   }
 
   const gen = () => {
@@ -104,38 +88,11 @@ export const animate = (
         rectObject.color.value = newColor;
       }
     }
-    // if (isGameLost) {
-    //   brickCount.value = -1;
-    // }
   }
-
-  // const collisions: Collision[] = [];
-  //
-  // for (const [i, o1] of objects.entries()) {
-  //   for (const [j, o2] of objects.entries()) {
-  //     if (i < j) {
-  //       const {collided, collisionInfo} = checkCollision(o1, o2);
-  //       if (collided && collisionInfo) {
-  //         collisions.push(collisionInfo);
-  //       }
-  //       if (o1.type === ShapeType.Circle) {
-  //         const circleObj = o1 as DraggableCircleInterface;
-  //         if (circleObj.color.value !== 'black')
-  //           circleObj.color.value = 'black';
-  //       }
-  //     }
-  //   }
-  // }
-  // for (const col of collisions) {
-  //   // if (col.o2.type === "Brick") {
-  //   //   brickCount.value++;
-  //   // }
-  //   resolveCollisionWithWall(col);
-  // }
 };
 
 export const animateWallCollisions = (
-  draggableCircleObj: DraggableCircleInterface,
+  draggableCircleObj: PlayerCircleInterface,
   walls: RectInterface[],
 ) => {
   'worklet';
@@ -159,10 +116,9 @@ export const animateWallCollisions = (
 
 export const animateLineStartPoint = (
   objects: {
-    draggableCircleObj: DraggableCircleInterface;
+    draggableCircleObj: PlayerCircleInterface;
     lineObj: LineInterface;
   },
-  // timeSincePreviousFrame: number,
   isFingerOnTheScreen: boolean,
   lineVecP2: {dx: number; dy: number},
 ) => {

@@ -28,7 +28,7 @@ export interface CircleInterface extends ShapeInterface {
   canCollide: boolean;
 }
 
-export interface DraggableCircleInterface extends ShapeInterface {
+export interface PlayerCircleInterface extends ShapeInterface {
   type: ShapeType.Circle;
   isDraggable: true;
   r: number;
