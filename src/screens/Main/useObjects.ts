@@ -30,7 +30,7 @@ export const useObjects = () => {
     id: 0,
     x: useSharedValue(100),
     y: useSharedValue(500),
-    r: RADIUS * 1.5,
+    r: RADIUS,
     m: 0,
     ax: 0,
     ay: 0,
@@ -38,6 +38,8 @@ export const useObjects = () => {
     vy: useSharedValue(0),
     canCollide: true,
     isDraggable: true,
+    // color: useSharedValue('black'),
+    color: useSharedValue('black'),
   };
 
   const rectObj: RectInterface = {
@@ -45,8 +47,8 @@ export const useObjects = () => {
     id: 0,
     x: useSharedValue(100),
     y: useSharedValue(0),
-    width: 50,
-    height: 100,
+    width: useSharedValue(50),
+    height: useSharedValue(100),
     m: 0,
     ax: 0,
     ay: 0,

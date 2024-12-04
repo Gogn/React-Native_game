@@ -1,17 +1,15 @@
 // Source: https://www.jeffreythompson.org/collision-detection/table_of_contents.php
-import {
-  RADIUS
-} from '../../constants.ts';
 
 export function circleRect(
   cx: number,
   cy: number,
+  cr: number,
   rx: number,
   ry: number,
   rw: number,
-  rh: number
+  rh: number,
 ) {
-  "worklet";
+  'worklet';
   // temporary variables to set edges for testing
   let testX = cx;
   let testY = cy;
@@ -28,7 +26,7 @@ export function circleRect(
   let distance = Math.sqrt(distX * distX + distY * distY);
 
   // if the distance is less than the radius, collision!
-  if (distance <= RADIUS) {
+  if (distance <= cr) {
     return true;
   }
   return false;

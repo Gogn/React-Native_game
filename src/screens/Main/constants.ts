@@ -1,4 +1,4 @@
-export const RADIUS = 50;
+export const RADIUS = 25;
 
 import {Dimensions} from 'react-native';
 
@@ -19,5 +19,5 @@ export const MAX_SPEED = 50;
 
 export const RECT_WIDTH = 25;
 export const RECT_HEIGHT = 200;
-export const WALLS_AMOUNT = 10;
-export const WALLS_SPEED = 10;
+export const WALLS_AMOUNT = 2;
+export const WALLS_SPEED = 20;

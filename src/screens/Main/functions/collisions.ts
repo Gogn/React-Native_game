@@ -1,26 +1,26 @@
 import {
   CircleInterface,
   Collision,
+  DraggableCircleInterface,
+  RectInterface,
   ShapeInterface,
   ShapeType,
 } from '../types.ts';
 import {circleCircle} from './shapeCollisions/circleCircle.ts';
 import {windowHeight, windowWidth} from '../constants.ts';
+import {circleRect} from './shapeCollisions/circleRect.ts';
 
-export const resolveCollisionWithBounce = (info: Collision) => {
+export const resolveCollisionWithWall = (info: Collision) => {
   'worklet';
-  const circleInfo = info.o1 as CircleInterface;
+  const circleObj = info.o1 as DraggableCircleInterface;
 
-  circleInfo.y.value = circleInfo.y.value - circleInfo.r;
+  // circleInfo.y.value = circleInfo.y.value - circleInfo.r;
 
-  // if (info.o2.type === ShapeType.Rect && circleInfo.ay > 0) {
-  //   return;
-  // }
-
-  circleInfo.vx = circleInfo.vx;
-  circleInfo.ax = circleInfo.ax;
-  circleInfo.vy.value = -circleInfo.vy;
-  circleInfo.ay = -circleInfo.ay;
+  circleObj.vx.value = 0;
+  circleObj.vy.value = 0;
+  circleObj.ax = 0;
+  circleObj.ay = 0;
+  circleObj.color.value = 'red';
 };
 
 // Source: https://martinheinz.dev/blog/15
@@ -74,83 +74,89 @@ export const checkCollision = (o1: ShapeInterface, o2: ShapeInterface) => {
   'worklet';
   // Circle-Circle
   if (o1.type === ShapeType.Circle && o2.type === ShapeType.Circle) {
-    const circle1 = o1 as CircleInterface;
-    const circle2 = o2 as CircleInterface;
-
-    if (!circle2.canCollide) {
-      return {
-        collisionInfo: null,
-        collided: false,
-      };
-    }
-    const isCollision = circleCircle(
-      circle1.x.value,
-      circle1.y.value,
-      circle1.r,
-      circle2.x.value,
-      circle2.y.value,
-      circle2.r,
-    );
-
-    if (isCollision) {
-      // if (o2.type === "Brick") {
-      //   const brick = o2 as BrickInterface;
-      //   brick.canCollide.value = false;
-      // }
-      const dx = circle1.x.value - circle2.x.value;
-      const dy = circle1.y.value - circle2.y.value;
-      const d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-      return {
-        collisionInfo: {o1, o2, dx, dy, d},
-        collided: true,
-      };
-    }
+    return checkCollisionCircleCircle(o1, o2);
   }
 
   // Circle-Rect
-  // if (o1.type === ShapeType.Circle && o2.type === ShapeType.Rect) {
-  //   // if (o2.type === ShapeType.Brick) {
-  //   //   const brick = o2 as BrickInterface;
-  //   //   if (!brick.canCollide.value) {
-  //   //     return {
-  //   //       collisionInfo: null,
-  //   //       collided: false,
-  //   //     };
-  //   //   }
-  //   // }
-  //   const circleObj = o1 as CircleInterface;
-  //   const rectObj = o2 as RectInterface;
-  //
-  //   if (!rectObj.canCollide)
-  //     return {
-  //       collisionInfo: null,
-  //       collided: false,
-  //     };
-  //
-  //   const dx = o2.x.value - o1.x.value;
-  //   const dy = o2.y.value - o1.y.value;
-  //   const d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-  //
-  //   const isCollision = circleRect(
-  //     circleObj.x.value,
-  //     circleObj.y.value,
-  //     rectObj.x.value,
-  //     rectObj.y.value,
-  //     PADDLE_WIDTH,
-  //     PADDLE_HEIGHT,
-  //   );
-  //
-  //   if (isCollision) {
-  //     // if (o2.type === "Brick") {
-  //     //   const brick = o2 as BrickInterface;
-  //     //   brick.canCollide.value = false;
-  //     // }
-  //     return {
-  //       collisionInfo: {o1, o2, dx, dy, d},
-  //       collided: true,
-  //     };
-  //   }
-  // }
+  if (o1.type === ShapeType.Circle && o2.type === ShapeType.Rect) {
+    return checkCollisionCircleRect(o1, o2);
+  }
+};
+
+export const checkCollisionCircleRect = (
+  circleObj: DraggableCircleInterface,
+  rectObj: RectInterface,
+) => {
+  'worklet';
+
+  if (!rectObj.canCollide) {
+    return {
+      collisionInfo: null,
+      collided: false,
+    };
+  }
+
+  const dx = rectObj.x.value - circleObj.x.value;
+  const dy = rectObj.y.value - circleObj.y.value;
+  const d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+  const isCollision = circleRect(
+    circleObj.x.value,
+    circleObj.y.value,
+    circleObj.r,
+    rectObj.x.value,
+    rectObj.y.value,
+    rectObj.width.value,
+    rectObj.height.value,
+  );
+
+  if (isCollision) {
+    // console.log('isCollision', new Date().getUTCMilliseconds());
+    console.log('rectObj', JSON.stringify(rectObj, null, 2));
+    // console.log('circleObj', circleObj);
+    return {
+      collisionInfo: {o1: circleObj, o2: rectObj, dx, dy, d},
+      collided: true,
+    };
+  }
+  return {
+    collisionInfo: null,
+    collided: false,
+  };
+};
+
+export const checkCollisionCircleCircle = (
+  circle1: CircleInterface,
+  circle2: CircleInterface,
+) => {
+  'worklet';
+  if (!circle2.canCollide) {
+    return {
+      collisionInfo: null,
+      collided: false,
+    };
+  }
+  const isCollision = circleCircle(
+    circle1.x.value,
+    circle1.y.value,
+    circle1.r,
+    circle2.x.value,
+    circle2.y.value,
+    circle2.r,
+  );
+
+  if (isCollision) {
+    // if (o2.type === "Brick") {
+    //   const brick = o2 as BrickInterface;
+    //   brick.canCollide.value = false;
+    // }
+    const dx = circle1.x.value - circle2.x.value;
+    const dy = circle1.y.value - circle2.y.value;
+    const d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    return {
+      collisionInfo: {o1: circle1, o2: circle2, dx, dy, d},
+      collided: true,
+    };
+  }
   return {
     collisionInfo: null,
     collided: false,

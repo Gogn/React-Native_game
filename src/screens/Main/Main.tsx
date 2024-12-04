@@ -13,6 +13,7 @@ import {
 import {
   animate,
   animateLineStartPoint,
+  animateWallCollisions,
   calculateFps,
   createBouncingExample,
 } from './functions/functions.ts';
@@ -60,31 +61,26 @@ export const Main = () => {
     const isRightSide = placing > 0.7;
 
     const x = isLeftSide
-      ? 0
+      ? useSharedValue(0)
       : isRightSide
-      ? windowWidth - RECT_WIDTH
+      ? useSharedValue(windowWidth - RECT_WIDTH)
       : useSharedValue(Math.random() * windowWidth);
     walls[i] = {
       x,
       y: useSharedValue(wallsYs[i]),
-      width: RECT_WIDTH,
-      height: wallsHeights[i],
+      width: useSharedValue(RECT_WIDTH),
+      height: useSharedValue(wallsHeights[i]),
       color: useSharedValue(generateRandomColor()),
       i,
       ax: 0,
       ay: 0,
-      canCollide: false,
+      canCollide: true,
       isDraggable: false,
       type: ShapeType.Rect,
       vy: useSharedValue(0),
       vx: useSharedValue(WALLS_SPEED),
       m: 0,
     };
-  }
-
-  for (const w of walls) {
-    // console.log('y', w.y.value);
-    console.log('y', w.y.value);
   }
 
   const Wall = ({idx, rect}: {idx: number; rect: RectInterface}) => {
@@ -113,7 +109,7 @@ export const Main = () => {
     }
 
     animate(
-      [circleObj, draggableCircleObj, ...walls],
+      [draggableCircleObj, ...walls],
       // [circleObj, ...walls],
       frameInfo.timeSincePreviousFrame,
       isFingerOnTheScreen,
@@ -123,11 +119,11 @@ export const Main = () => {
       isFingerOnTheScreen.value,
       lineVecP2.value,
     );
+    animateWallCollisions(draggableCircleObj, walls);
   });
   const speedRed = -0.2;
   const panGesture = Gesture.Pan()
     .onBegin(({x, y}) => {
-      console.log('onBegin');
       // if (brickCount.value === TOTAL_BRICKS || brickCount.value === -1) {
       //   resetGame();
       // }
@@ -135,42 +131,23 @@ export const Main = () => {
       isFingerOnTheScreen.value = true;
     })
     .onEnd(({x, y}) => {
-      console.log('onEnd');
-      // console.log('startCoordinates', startCoordinates.value);
       const difX = x - startCoordinates.value.x;
       const difY = y - startCoordinates.value.y;
       draggableCircleObj.vx.value =
         draggableCircleObj.vx.value + difX * speedRed;
       draggableCircleObj.vy.value =
         draggableCircleObj.vy.value + difY * speedRed;
-      // console.log('difX', difX);
-      // console.log('difY', difY);
-      // console.log('draggableCircleObj', draggableCircleObj);
     })
     .onTouchesUp(() => {
-      console.log('onTouchesUp');
+      lineObj.p1.value = vec(0, 0);
+      lineObj.p2.value = vec(0, 0);
       isFingerOnTheScreen.value = false;
     })
     .onChange(({x, y}) => {
       const dx = x - startCoordinates.value.x;
       const dy = y - startCoordinates.value.y;
-      // const nx = draggableCircleObj.x.value - dx;
-      // const ny = draggableCircleObj.y.value - dy;
-      // lineObj.p2.value = vec(nx, ny);
       lineVecP2.value = {dx, dy};
     });
-  // .onUpdate(() => {
-  //   lineVecP1.value = vec(
-  //     draggableCircleObj.x.value,
-  //     draggableCircleObj.y.value,
-  //   );
-  // });
-  // .onChange(({x, y}) => {
-  //   draggableCircleObj.x.value = x;
-  //   draggableCircleObj.y.value = y;
-  // });
-
-  // createBouncingExample(circleObj);
 
   const Level = () => {
     return (
@@ -199,7 +176,7 @@ export const Main = () => {
               cx={draggableCircleObj.x}
               cy={draggableCircleObj.y}
               r={draggableCircleObj.r}
-              color={'black'}
+              color={draggableCircleObj.color}
             />
             <Line
               p1={lineObj.p1}
@@ -207,7 +184,7 @@ export const Main = () => {
               color={'lightblue'}
               style="stroke"
               strokeWidth={4}
-              opacity={isFingerOnTheScreen ? 1 : 0}
+              opacity={isFingerOnTheScreen ? 0.5 : 0}
             />
           </Canvas>
         </View>

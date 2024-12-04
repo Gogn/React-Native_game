@@ -33,6 +33,7 @@ export interface DraggableCircleInterface extends ShapeInterface {
   isDraggable: true;
   r: number;
   canCollide: boolean;
+  color: SharedValue<string>;
 }
 
 export interface Collision {
@@ -46,8 +47,8 @@ export interface Collision {
 export interface RectInterface extends ShapeInterface {
   type: ShapeType.Rect;
   isDraggable: false;
-  width: number;
-  height: number;
+  width: SharedValue<number>;
+  height: SharedValue<number>;
   canCollide: boolean;
   color: SharedValue<string>;
 }
