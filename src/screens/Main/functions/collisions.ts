@@ -28,7 +28,7 @@ export const resolveCollisionWithWall = (info: Collision) => {
 };
 
 // Source: https://martinheinz.dev/blog/15
-export const resolveWallCollision = (object: ShapeInterface) => {
+export const handleScreenBouncing = (object: ShapeInterface) => {
   'worklet';
 
   if (object.type === ShapeType.Circle) {
@@ -63,6 +63,30 @@ export const resolveWallCollision = (object: ShapeInterface) => {
     }
 
     return false;
+  }
+};
+
+export const handlePlayerDeath = (player: PlayerCircleInterface) => {
+  'worklet';
+
+  // Collision with the right wall
+  if (player.x.value + player.r > windowWidth) {
+    player.isDead.value = 'Game over';
+  }
+
+  // Collision with the bottom wall
+  else if (player.y.value + player.r > windowHeight) {
+    player.isDead.value = 'Game over';
+  }
+
+  // Collision with the left wall
+  else if (player.x.value - player.r < 0) {
+    player.isDead.value = 'Game over';
+  }
+
+  // Detect collision with the top wall
+  else if (player.y.value - player.r < 0) {
+    player.isDead.value = 'Game over';
   }
 };
 

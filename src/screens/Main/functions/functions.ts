@@ -9,8 +9,9 @@ import {
 import {RECT_HEIGHT, windowHeight, windowWidth} from '../constants.ts';
 import {
   checkCollisionCircleRect,
+  handlePlayerDeath,
+  handleScreenBouncing,
   resolveCollisionWithWall,
-  resolveWallCollision,
 } from './collisions.ts';
 import {FrameInfo, runOnJS} from 'react-native-reanimated';
 import {vec} from '@shopify/react-native-skia';
@@ -74,7 +75,8 @@ export const animate = (
 
   for (const o of objects) {
     if (o.type === ShapeType.Circle) {
-      resolveWallCollision(o);
+      // handleScreenBouncing(o);
+      handlePlayerDeath(o);
     }
     if (o.type === 'Rect') {
       const rectObject = o as RectInterface;

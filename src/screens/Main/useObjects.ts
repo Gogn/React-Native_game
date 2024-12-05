@@ -8,6 +8,15 @@ import {
 import {useSharedValue} from 'react-native-reanimated';
 import {RADIUS} from './constants.ts';
 import {vec} from '@shopify/react-native-skia';
+import {
+  playerInitialColor,
+  playerInitialIsDead,
+  playerInitials,
+  playerInitialVX,
+  playerInitialVY,
+  playerInitialX,
+  playerInitialY,
+} from './objectsInitials.ts';
 
 export const useObjects = () => {
   const circleObj: CircleInterface = {
@@ -25,21 +34,22 @@ export const useObjects = () => {
     isDraggable: false,
   };
 
-  const PlayerObj: PlayerCircleInterface = {
+  const playerObj: PlayerCircleInterface = {
     type: ShapeType.Circle,
     id: 0,
-    x: useSharedValue(100),
-    y: useSharedValue(500),
+    x: useSharedValue(playerInitialX),
+    y: useSharedValue(playerInitialY),
     r: RADIUS,
     m: 0,
     ax: 0,
     ay: 0,
-    vx: useSharedValue(0),
-    vy: useSharedValue(0),
+    vx: useSharedValue(playerInitialVX),
+    vy: useSharedValue(playerInitialVY),
     canCollide: true,
     isDraggable: true,
-    color: useSharedValue('black'),
+    color: useSharedValue(playerInitialColor),
     lastTimeCollision: new Date().getTime(),
+    isDead: useSharedValue(playerInitialIsDead),
   };
 
   const rectObj: RectInterface = {
@@ -66,7 +76,7 @@ export const useObjects = () => {
 
   return {
     circleObj,
-    PlayerObj: PlayerObj,
+    playerObj,
     rectObj,
     lineObj,
   };

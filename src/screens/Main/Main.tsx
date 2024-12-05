@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {Canvas, vec} from '@shopify/react-native-skia';
+import {Canvas, vec, matchFont, Text} from '@shopify/react-native-skia';
 import {useFrameCallback, useSharedValue} from 'react-native-reanimated';
 import {PLAYER_SPEED_REDUCE, windowHeight, windowWidth} from './constants.ts';
 import {
@@ -14,14 +14,22 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import {useObjects} from './useObjects.ts';
-import {Text, View} from 'react-native';
+import {Platform} from 'react-native';
 import {useInitializeWalls} from './hooks/useInitializeWalls.ts';
 import {Player} from './Components/Player.tsx';
 import {Path} from './Components/Path.tsx';
 import {Walls} from './Components/Walls.tsx';
+import {
+  playerInitialColor,
+  playerInitialIsDead,
+  playerInitialVX,
+  playerInitialVY,
+  playerInitialX,
+  playerInitialY,
+} from './objectsInitials.ts';
 
 export const Main = () => {
-  const {PlayerObj, lineObj} = useObjects();
+  const {playerObj: playerObj, lineObj} = useObjects();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showFps, setShowFps] = useState(false);
   const [fps, setFps] = useState(0);
@@ -30,7 +38,7 @@ export const Main = () => {
   let startCoordinates = useSharedValue({x: 0, y: 0});
   const lineVecP2 = useSharedValue({dx: 0, dy: 0});
   const isFingerOnTheScreen = useSharedValue(false);
-  const walls = useInitializeWalls();
+  const {walls, fillWallsInitials} = useInitializeWalls();
 
   useFrameCallback(frameInfo => {
     if (!frameInfo.timeSincePreviousFrame) {
@@ -41,16 +49,28 @@ export const Main = () => {
       calculateFps(frameInfo, frameCountRef, lastFrameTimeRef, setFps);
     }
 
-    animate([PlayerObj, ...walls], frameInfo.timeSincePreviousFrame);
+    animate([playerObj, ...walls], frameInfo.timeSincePreviousFrame);
     animateLineStartPoint(
-      {draggableCircleObj: PlayerObj, lineObj},
+      {draggableCircleObj: playerObj, lineObj},
       isFingerOnTheScreen.value,
       lineVecP2.value,
     );
-    animateWallCollisions(PlayerObj, walls);
+    animateWallCollisions(playerObj, walls);
   });
 
   const panGesture = Gesture.Pan()
+    .onTouchesDown(() => {
+      if (playerObj.isDead.value !== '') {
+        playerObj.x.value = playerInitialX;
+        playerObj.y.value = playerInitialY;
+        playerObj.vx.value = playerInitialVX;
+        playerObj.vy.value = playerInitialVY;
+        playerObj.color.value = playerInitialColor;
+        playerObj.isDead.value = playerInitialIsDead;
+
+        fillWallsInitials(walls);
+      }
+    })
     .onBegin(({x, y}) => {
       startCoordinates.value = {x, y};
       isFingerOnTheScreen.value = true;
@@ -58,8 +78,8 @@ export const Main = () => {
     .onEnd(({x, y}) => {
       const difX = x - startCoordinates.value.x;
       const difY = y - startCoordinates.value.y;
-      PlayerObj.vx.value = PlayerObj.vx.value + difX * PLAYER_SPEED_REDUCE;
-      PlayerObj.vy.value = PlayerObj.vy.value + difY * PLAYER_SPEED_REDUCE;
+      playerObj.vx.value = playerObj.vx.value + difX * PLAYER_SPEED_REDUCE;
+      playerObj.vy.value = playerObj.vy.value + difY * PLAYER_SPEED_REDUCE;
     })
     .onTouchesUp(() => {
       lineObj.p1.value = vec(0, 0);
@@ -72,17 +92,28 @@ export const Main = () => {
       lineVecP2.value = {dx, dy};
     });
 
+  const fontFamily = Platform.select({ios: 'Helvetica', default: 'serif'});
+  const fontStyle = {
+    fontFamily,
+    fontSize: 18,
+  };
+  const font = matchFont(fontStyle);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <GestureDetector gesture={panGesture}>
-        <View>
-          <Text style={{position: 'absolute', top: 50, left: 50}}>{fps}</Text>
-          <Canvas style={{width: windowWidth, height: windowHeight}}>
-            <Walls walls={walls} />
-            <Player player={PlayerObj} />
-            <Path path={lineObj} />
-          </Canvas>
-        </View>
+        <Canvas style={{width: windowWidth, height: windowHeight}}>
+          <Text x={20} y={50} text={`${fps}`} font={font} />
+          <Text
+            x={windowWidth / 2}
+            y={windowHeight / 2}
+            text={playerObj.isDead}
+            font={font}
+          />
+          <Walls walls={walls} />
+          <Player player={playerObj} />
+          <Path path={lineObj} />
+        </Canvas>
       </GestureDetector>
     </GestureHandlerRootView>
   );
