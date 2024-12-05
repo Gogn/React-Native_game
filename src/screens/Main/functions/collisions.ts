@@ -20,10 +20,12 @@ export const resolveCollisionWithWall = (info: Collision) => {
     player.vy.value = WALLS_SPEED;
     player.ax = 0;
     player.ay = 0;
-    player.color.value = 'red';
+    // Can be uncommented for debugging
+    // player.color.value = 'red';
     player.lastTimeCollision = time;
   } else {
-    player.color.value = 'black';
+    // Can be uncommented for debugging
+    // player.color.value = 'black';
   }
 };
 
@@ -71,22 +73,22 @@ export const handlePlayerDeath = (player: PlayerCircleInterface) => {
 
   // Collision with the right wall
   if (player.x.value - player.r > windowWidth) {
-    player.isDead.value = 'Game over';
+    player.gameOverText.value = 'Game over';
   }
 
   // Collision with the bottom wall
   else if (player.y.value + player.r > windowHeight) {
-    player.isDead.value = 'Game over';
+    player.gameOverText.value = 'Game over';
   }
 
   // Collision with the left wall
   else if (player.x.value + player.r < 0) {
-    player.isDead.value = 'Game over';
+    player.gameOverText.value = 'Game over';
   }
 
   // Detect collision with the top wall
   else if (player.y.value + player.r < 0) {
-    player.isDead.value = 'Game over';
+    player.gameOverText.value = 'Game over';
   }
 };
 

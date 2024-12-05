@@ -10,11 +10,11 @@ import {RECT_HEIGHT, windowHeight, windowWidth} from '../constants.ts';
 import {
   checkCollisionCircleRect,
   handlePlayerDeath,
-  handleScreenBouncing,
   resolveCollisionWithWall,
 } from './collisions.ts';
-import {FrameInfo, runOnJS} from 'react-native-reanimated';
+import {FrameInfo, SharedValue} from 'react-native-reanimated';
 import {vec} from '@shopify/react-native-skia';
+import {MutableRefObject} from 'react';
 
 const move = (object: ShapeInterface, dt: number) => {
   'worklet';
@@ -41,15 +41,24 @@ const move = (object: ShapeInterface, dt: number) => {
   }
 };
 
-// export const createBouncingExample = (circleObject: CircleInterface) => {
-//   'worklet';
-//   circleObject.r = RADIUS;
-//   circleObject.ax = 0.5;
-//   circleObject.ay = 1;
-//   circleObject.vx.value = MAX_SPEED - 10;
-//   circleObject.vy.value = MAX_SPEED - 10;
-//   circleObject.m = RADIUS * 10;
-// };
+export const updateScore = ({
+  score,
+  isGameStart,
+  scoreUpdateTime,
+  currentTime,
+}: {
+  score: SharedValue<string>;
+  isGameStart: boolean;
+  scoreUpdateTime: MutableRefObject<number>;
+  currentTime: number;
+}) => {
+  'worklet';
+  const scoreInt = parseInt(score.value) || 0;
+  if (isGameStart && currentTime - scoreUpdateTime.current > 1000) {
+    score.value = `${scoreInt + 1}`;
+    scoreUpdateTime.current = currentTime;
+  }
+};
 
 export const animate = (
   objects: ShapeInterface[],
@@ -57,11 +66,14 @@ export const animate = (
 ) => {
   'worklet';
 
+  const gameSpeed = 0.15;
+  const normalFPSmilliseconds = 16;
+  const fpsUpdateInterval =
+    (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
+
+  // updateScore(score, fpsUpdateInterval);
+
   for (const o of objects) {
-    const gameSpeed = 0.15;
-    const normalFPSmilliseconds = 16;
-    const fpsUpdateInterval =
-      (gameSpeed / normalFPSmilliseconds) * timeSincePreviousFrame;
     move(o, fpsUpdateInterval);
   }
 
@@ -75,8 +87,9 @@ export const animate = (
 
   for (const o of objects) {
     if (o.type === ShapeType.Circle) {
+      const player = o as PlayerCircleInterface;
       // handleScreenBouncing(o);
-      handlePlayerDeath(o);
+      handlePlayerDeath(player);
     }
     if (o.type === 'Rect') {
       const rectObject = o as RectInterface;
@@ -157,6 +170,6 @@ export const calculateFps = (
     frameCountRef.current = 0;
     lastFrameTimeRef.current = currentTime;
 
-    runOnJS(updateFps)(calculatedFps);
+    updateFps(calculatedFps);
   }
 };

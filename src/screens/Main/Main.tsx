@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
-import {Canvas, vec, matchFont, Text} from '@shopify/react-native-skia';
+import {StyleSheet} from 'react-native';
+import {Canvas, vec} from '@shopify/react-native-skia';
 import {useFrameCallback, useSharedValue} from 'react-native-reanimated';
 import {PLAYER_SPEED_REDUCE, windowHeight, windowWidth} from './constants.ts';
 import {
@@ -7,6 +8,7 @@ import {
   animateLineStartPoint,
   animateWallCollisions,
   calculateFps,
+  updateScore,
 } from './functions/functions.ts';
 import {
   Gesture,
@@ -14,27 +16,25 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import {useObjects} from './useObjects.ts';
-import {Platform} from 'react-native';
 import {useInitializeWalls} from './hooks/useInitializeWalls.ts';
 import {Player} from './Components/Player.tsx';
 import {Path} from './Components/Path.tsx';
 import {Walls} from './Components/Walls.tsx';
-import {
-  playerInitialColor,
-  playerInitialIsDead,
-  playerInitialVX,
-  playerInitialVY,
-  playerInitialX,
-  playerInitialY,
-} from './objectsInitials.ts';
+import {GameOverText} from './Components/GameOverText.tsx';
+import {FpsText} from './Components/FpsText.tsx';
+import {resetGame} from './functions/resetGame.ts';
+import {ScoreText} from './Components/ScoreText.tsx';
 
 export const Main = () => {
-  const {playerObj: playerObj, lineObj} = useObjects();
+  const {playerObj, lineObj} = useObjects();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showFps, setShowFps] = useState(false);
-  const [fps, setFps] = useState(0);
+  const gameStartTime = useSharedValue(0);
+  const fps = useSharedValue('');
+  const score = useSharedValue('');
   const lastFrameTimeRef = useRef(0);
   const frameCountRef = useRef(0);
+  const scoreUpdateTime = useRef(0);
   let startCoordinates = useSharedValue({x: 0, y: 0});
   const lineVecP2 = useSharedValue({dx: 0, dy: 0});
   const isFingerOnTheScreen = useSharedValue(false);
@@ -46,9 +46,18 @@ export const Main = () => {
     }
 
     if (showFps) {
+      const setFps = (newFps: number) => {
+        fps.value = `${newFps}`;
+      };
       calculateFps(frameInfo, frameCountRef, lastFrameTimeRef, setFps);
     }
 
+    updateScore({
+      score,
+      isGameStart: playerObj.gameOverText.value === '',
+      scoreUpdateTime,
+      currentTime: frameInfo.timestamp,
+    });
     animate([playerObj, ...walls], frameInfo.timeSincePreviousFrame);
     animateLineStartPoint(
       {draggableCircleObj: playerObj, lineObj},
@@ -60,16 +69,18 @@ export const Main = () => {
 
   const panGesture = Gesture.Pan()
     .onTouchesDown(() => {
-      if (playerObj.isDead.value !== '') {
-        playerObj.x.value = playerInitialX;
-        playerObj.y.value = playerInitialY;
-        playerObj.vx.value = playerInitialVX;
-        playerObj.vy.value = playerInitialVY;
-        playerObj.color.value = playerInitialColor;
-        playerObj.isDead.value = playerInitialIsDead;
-
-        fillWallsInitials(walls);
+      if (playerObj.gameOverText.value !== '') {
+        resetGame({
+          fillWallsInitials,
+          walls,
+          playerObj,
+          score,
+          gameStartTime,
+        });
       }
+      // if (score.value === '0') {
+      //
+      // }
     })
     .onBegin(({x, y}) => {
       startCoordinates.value = {x, y};
@@ -92,34 +103,29 @@ export const Main = () => {
       lineVecP2.value = {dx, dy};
     });
 
-  const fontFamily = Platform.select({ios: 'Helvetica', default: 'serif'});
-  const fontStyle = {
-    fontFamily,
-    fontSize: 18,
-  };
-  const font = matchFont(fontStyle);
-
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={panGesture}>
-        <Canvas
-          style={{
-            backgroundColor: 'white',
-            width: windowWidth,
-            height: windowHeight,
-          }}>
-          <Text x={20} y={50} text={`${fps}`} font={font} />
-          <Text
-            x={windowWidth / 2}
-            y={windowHeight / 2}
-            text={playerObj.isDead}
-            font={font}
-          />
+        <Canvas style={styles.canvasContainer}>
           <Walls walls={walls} />
           <Player player={playerObj} />
           <Path path={lineObj} />
+          <ScoreText score={score} />
+          <FpsText fps={fps} />
+          <GameOverText isDead={playerObj.gameOverText} />
         </Canvas>
       </GestureDetector>
     </GestureHandlerRootView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  canvasContainer: {
+    backgroundColor: 'white',
+    width: windowWidth,
+    height: windowHeight,
+  },
+});

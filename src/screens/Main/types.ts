@@ -3,7 +3,6 @@ import {SkPoint} from '@shopify/react-native-skia';
 
 export enum ShapeType {
   Circle = 'Circle',
-  Paddle = 'Paddle',
   Rect = 'Rect',
   Line = 'Line',
 }
@@ -35,7 +34,7 @@ export interface PlayerCircleInterface extends ShapeInterface {
   canCollide: boolean;
   color: SharedValue<string>;
   lastTimeCollision: number;
-  isDead: SharedValue<string>;
+  gameOverText: SharedValue<string>;
 }
 
 export interface Collision {

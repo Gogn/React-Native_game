@@ -1,12 +1,22 @@
-export const RADIUS = 25;
-
-import {Dimensions} from 'react-native';
-
+import {Dimensions, Platform} from 'react-native';
 export const {height: windowHeight, width: windowWidth} =
   Dimensions.get('window');
 
-export const MAX_SPEED = 50;
+const fontFamily = Platform.select({ios: 'Helvetica', default: 'serif'});
+export const fontStyleBig = {
+  fontFamily,
+  fontSize: 48,
+};
+export const fontStyleMedium = {
+  fontFamily,
+  fontSize: 24,
+};
+export const fontStyleSmall = {
+  fontFamily,
+  fontSize: 16,
+};
 
+export const RADIUS = 25;
 export const RECT_WIDTH = 25;
 export const RECT_HEIGHT = 200;
 export const WALLS_AMOUNT = 5;

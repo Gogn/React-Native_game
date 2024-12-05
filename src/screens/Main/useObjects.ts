@@ -1,7 +1,7 @@
 import {
   CircleInterface,
-  PlayerCircleInterface,
   LineInterface,
+  PlayerCircleInterface,
   RectInterface,
   ShapeType,
 } from './types.ts';
@@ -11,7 +11,6 @@ import {vec} from '@shopify/react-native-skia';
 import {
   playerInitialColor,
   playerInitialIsDead,
-  playerInitials,
   playerInitialVX,
   playerInitialVY,
   playerInitialX,
@@ -49,7 +48,7 @@ export const useObjects = () => {
     isDraggable: true,
     color: useSharedValue(playerInitialColor),
     lastTimeCollision: new Date().getTime(),
-    isDead: useSharedValue(playerInitialIsDead),
+    gameOverText: useSharedValue(playerInitialIsDead),
   };
 
   const rectObj: RectInterface = {
@@ -66,9 +65,11 @@ export const useObjects = () => {
     vy: useSharedValue(0),
     canCollide: true,
     isDraggable: false,
+    color: useSharedValue('white'),
   };
 
   const lineObj: LineInterface = {
+    type: ShapeType.Line,
     color: 'lightblue',
     p1: useSharedValue(vec(0, 0)),
     p2: useSharedValue(vec(0, 0)),
