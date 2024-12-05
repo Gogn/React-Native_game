@@ -70,7 +70,7 @@ export const handlePlayerDeath = (player: PlayerCircleInterface) => {
   'worklet';
 
   // Collision with the right wall
-  if (player.x.value + player.r > windowWidth) {
+  if (player.x.value - player.r > windowWidth) {
     player.isDead.value = 'Game over';
   }
 
@@ -80,12 +80,12 @@ export const handlePlayerDeath = (player: PlayerCircleInterface) => {
   }
 
   // Collision with the left wall
-  else if (player.x.value - player.r < 0) {
+  else if (player.x.value + player.r < 0) {
     player.isDead.value = 'Game over';
   }
 
   // Detect collision with the top wall
-  else if (player.y.value - player.r < 0) {
+  else if (player.y.value + player.r < 0) {
     player.isDead.value = 'Game over';
   }
 };

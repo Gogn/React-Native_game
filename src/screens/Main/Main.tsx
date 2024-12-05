@@ -102,7 +102,12 @@ export const Main = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <GestureDetector gesture={panGesture}>
-        <Canvas style={{width: windowWidth, height: windowHeight}}>
+        <Canvas
+          style={{
+            backgroundColor: 'white',
+            width: windowWidth,
+            height: windowHeight,
+          }}>
           <Text x={20} y={50} text={`${fps}`} font={font} />
           <Text
             x={windowWidth / 2}
